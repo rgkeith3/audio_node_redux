@@ -6,11 +6,12 @@ const onDragStart = (event, nodeType) => {
   event.dataTransfer.effectAllowed = 'move';
 };
 
-const Pallette = () => {
+const Pallette = ({ toggleAudioCtxState, audioCtxState }) => {
   const [open, setOpen] = useState(true);
 
   return (
     <aside id="pallette">
+      <button onClick={toggleAudioCtxState}>{audioCtxState == "running" ? "Stop" : "Start"}</button>
       <button onClick={() => setOpen(!open)}>{open ? "Close" : "Open"}</button>
       {open && <div className="drawer">
         <div className="description">You can drag these nodes to the pane on the right.</div>

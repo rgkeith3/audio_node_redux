@@ -13,6 +13,7 @@ class ControlNode {
   }
 
   gateHigh() {
+    debugger;
     this.connections.forEach(target => {
     })
   }

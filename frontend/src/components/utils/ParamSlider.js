@@ -8,12 +8,12 @@ const ParamSlider = ({ id, name, min, max, sliderAction, state, setState }) => {
   
   const onSlide = ({target: {value}}) => {
     const transformedValue = transformValue(sliderAction, parseFloat(value));
-    AudioNodeGraph.getTarget(id, name).setValueAtTime(transformedValue, Tone.immediate());
+    AudioNodeGraph.setTargetValue(id, name, transformedValue);
     setState({...state, [name]: transformedValue, [`${name}-slider`]: value})
   }
 
   const onChange = ({target: {value}}) => {
-    AudioNodeGraph.getTarget(id, name).setValueAtTime(value, Tone.immediate());
+    AudioNodeGraph.setTargetValue(id, name, value);
     const parsedValue = parseFloat(value) || 0;
     setState({...state, [name]: value, [`${name}-slider`]: reverseTransformValue(sliderAction, parsedValue)});
   }

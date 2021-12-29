@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import ReactFlow, { Background, Controls, Elements, OnLoadParams, Connection, Edge, ConnectionLineType, addEdge, updateEdge, removeElements, isEdge, isNode } from 'react-flow-renderer';
 import './App.css';
 import AudioNodeGraph from './AudioNodeGraph';
-import AudioNodeLibrary from './AudioNodeLibrary';
 import AudioFlowNode from './components/flow_nodes/AudioFlowNode';
+import ControlFlowNode from './components/flow_nodes/ControlFlowNode';
 import Pallette from './Pallette';
 
 const nodeTypes = {
-  generic: AudioFlowNode,
+  default: AudioFlowNode,
+  envelope: ControlFlowNode
 };
 
 let id = 0;
@@ -21,7 +22,7 @@ function App() {
   const onLoad = (reactFlowInstance: OnLoadParams) => setPatchInstance(reactFlowInstance);
   
   const toggleAudioCtxState = () => {
-    if (audioCtxState != "running") {
+    if (audioCtxState !== "running") {
       AudioNodeGraph.resume().then(state => setAudioCtxState(state));
     }
   }
@@ -94,8 +95,10 @@ function App() {
           <Controls />
         </ReactFlow>
       </div>
-      <button onClick={toggleAudioCtxState}>{audioCtxState === "running" ? "Stop" : "Start"}</button>
-      <Pallette />
+      <Pallette 
+        audioCtxState={audioCtxState}
+        toggleAudioCtxState={toggleAudioCtxState}
+      />
     </div>
   );
 }

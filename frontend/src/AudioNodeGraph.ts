@@ -1,10 +1,9 @@
 import { Connection, Edge } from "react-flow-renderer";
-import { ControlParam, Param } from "./AudioNodeFlowInterface";
+import { AudioNodeFlowInterface, Param } from "./AudioNodeFlowInterface";
 import AudioNodeLibrary from "./AudioNodeLibrary";
-import ControlNode from "./ControlNode";
 import { reverseTransformValue } from "./utils/tranformValues";
 import * as Tone from 'tone';
-import { Signal, ToneAudioNode } from "tone";
+import { Param as ToneParam, Signal, ToneAudioNode } from "tone";
 
 export class AudioNodeGraph {
   constructor() {
@@ -36,9 +35,10 @@ export class AudioNodeGraph {
   }
 
   // redefine audioNodeFlowInterface and return here
-  add(type: string, id: string) : void {
+  add(type: string, id: string) : AudioNodeFlowInterface {
     const audioNode = AudioNodeLibrary[type].func();
     this.nodes.set(id, audioNode);
+    return AudioNodeLibrary[type].flowData;
   }
 
   set(id: string, node: ToneAudioNode) {
@@ -61,11 +61,16 @@ export class AudioNodeGraph {
     return targetNode[param];
   }
 
+  setTargetValue(id: string, param: string, value: number) : void {
+    const targetNode = this.get(id)!;
+    targetNode.set({ [param]: value });
+  }
+
   isValidConnection(conn: Connection) {
     const source = this.get(conn.source!);
     const target = this.getTarget(conn.target!, conn.targetHandle);
 
-    if ((source instanceof AudioNode || source instanceof ControlNode) && (target instanceof AudioNode || target instanceof AudioParam)) {
+    if (source instanceof ToneAudioNode && (target instanceof ToneParam || target instanceof ToneAudioNode)) {
       return true;
     }
     return false;

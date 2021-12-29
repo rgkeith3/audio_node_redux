@@ -15,11 +15,18 @@ const AudioFlowNode = ({ id, data: { label, params, constants, outputs, inputs }
   const initialState = AudioNodeGraph.getNodesInitialState(id, params);
   const [state, setState] = useState(initialState);
 
-
   return(
     <div key={id} style={nodeStyle}>
       {inputs ? <Handle type="target" position="left" /> : ""}
-      {params.map(({name}, idx) => <Handle type="target" key={name} id={name} position="top" style={{ left: `${(idx + 0.5)/params.length * 100}%`}} isValidConnection={AudioNodeGraph.isValidConnection}/>)}
+      {params.map(({name}, idx) => 
+        <Handle type="target" 
+          key={name} 
+          id={name} 
+          position="top" 
+          style={{ left: `${(idx + 0.5)/params.length * 100}%`}} 
+          isValidConnection={AudioNodeGraph.isValidConnection}
+        />
+        )}
       <div className="label">{label}</div>
       {params.map(props => 
         <ParamSlider 

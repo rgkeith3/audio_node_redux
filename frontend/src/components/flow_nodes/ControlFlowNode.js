@@ -14,11 +14,11 @@ const ControlFlowNode = ({id, data: { label, params, inputs, outputs }}) => {
   const [state, setState] = useState(initialState);
 
   const onMouseDown = () => {
-    AudioNodeGraph.get(id).gateHigh();
+    AudioNodeGraph.get(id).triggerAttack();
   }
 
   const onMouseUp = () => {
-    AudioNodeGraph.get(id).gateLow();
+    AudioNodeGraph.get(id).triggerRelease();
   }
 
   return(
