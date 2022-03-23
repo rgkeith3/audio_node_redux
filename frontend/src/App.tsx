@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import ReactFlow, { Background, Controls, Elements, OnLoadParams, Connection, Edge, ConnectionLineType, addEdge, updateEdge, removeElements, isEdge, isNode } from 'react-flow-renderer';
 import './App.css';
-import AudioNodeGraph from './AudioNodeGraph';
+import AudioNodeGraph from './core/AudioNodeGraph';
 import AudioFlowNode from './components/flow_nodes/AudioFlowNode';
 import ControlFlowNode from './components/flow_nodes/ControlFlowNode';
-import Pallette from './Pallette';
+import ReceiverFlowNode from './components/flow_nodes/ReceiverFlowNode';
+import SenderFlowNode from './components/flow_nodes/SenderFlowNode';
+import Pallette from './components/Pallette';
+import Connect from './components/Connect';
 
 const nodeTypes = {
   default: AudioFlowNode,
-  envelope: ControlFlowNode
+  envelope: ControlFlowNode,
+  send: SenderFlowNode,
+  receive: ReceiverFlowNode
 };
 
 let id = 0;
@@ -99,6 +104,7 @@ function App() {
         audioCtxState={audioCtxState}
         toggleAudioCtxState={toggleAudioCtxState}
       />
+      <Connect />
     </div>
   );
 }

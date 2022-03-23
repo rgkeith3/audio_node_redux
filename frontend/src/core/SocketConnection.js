@@ -1,68 +1,73 @@
-import { Socket } from "phoenix";
+import { Socket } from "phoenix"
 
-class Connection {
+class SocketConnection {
   constructor() {
-    this.socket = new Socket("/socket", { params: { token: window.sessionUuid}});
+    this.rtcPeers = {};
+    this.kickoffCallbacks = {};
+    this.onTrackCallbacks = {};
+  }
+  connect(userId, setUserId) {
+    this.socket = new Socket("ws://localhost:4000/socket", {params: { userId }});
     this.socket.connect();
-    this.channel = this.socket.channel(`signal:${window.sessionUuid}`, {});
+    this.channel = this.socket.channel(`signal:${userId}`, {});
     this.channel.join()
-      .receive("ok", resp => console.log("Joined Sucessfully", resp))
+      .receive("ok", resp => {
+        setUserId(userId);
+        console.log("Joined Sucessfully", resp);
+      })
       .receive("error", resp => console.log("Unable to Join", resp));
 
     this.channel.on("kickoff", this.onKickoff.bind(this));
     this.channel.on("offer", this.onOfferSignal.bind(this));
     this.channel.on("answer", this.onAnswerSignal.bind(this));
     this.channel.on("ice-candidate", this.onIceCandidateSignal.bind(this));
-    this.rtcPeers = {};
-    this.kickoffCallbacks = {};
-    this.onTrackCallbacks = {};
   }
 
   onKickoffCallback(code, callback) {
     this.kickoffCallbacks[code] = callback;
   }
 
-  onKickoff({receiver}) {
+  onKickoff({ receiver }) {
     this.kickoffCallbacks[receiver]();
   }
 
-  senderReady(uuid) {
-    this.channel.push("sender-ready", {targetUuid: uuid});
+  senderReady(receiverUserId, callback) {
+    this.channel.push("sender-ready", { receiverUserId }).receive("ok", callback);
   }
 
-  receiverReady(uuid) {
-    this.channel.push("receiver-ready", {targetUuid: uuid});
+  receiverReady(senderUserId, callback) {
+    this.channel.push("receiver-ready", { senderUserId }).receive("ok", callback)
   }
 
-  getRTCPeer(uuid) {
-    if (!this.rtcPeers[uuid]) {
+  getRTCPeer(userId) {
+    if (!this.rtcPeers[userId]) {
       const rtcPeerConnection = new RTCPeerConnection({ 
         iceServers: [
           {
-            urls: "stun:stun.l.google.com:19302",
+            urls: "stun:stunserver.org",
           }
         ]
       });
-      rtcPeerConnection.onicecandidate = this.onIceCandidate.bind(this, uuid);
-      rtcPeerConnection.onnegotiationneeded = this.offer.bind(this, uuid);
+      rtcPeerConnection.onicecandidate = this.onIceCandidate.bind(this, userId);
+      rtcPeerConnection.onnegotiationneeded = this.offer.bind(this, userId);
       rtcPeerConnection.ontrack = this.onTrack.bind(this);
-      rtcPeerConnection.targetUuid = uuid;
-      this.rtcPeers[uuid] = rtcPeerConnection
+      rtcPeerConnection.userId = userId;
+      this.rtcPeers[userId] = rtcPeerConnection
     }
-    return this.rtcPeers[uuid];
+    return this.rtcPeers[userId];
   }
 
-  newConnection(uuid, mediaTrack) {
-    this.getRTCPeer(uuid).addTrack(mediaTrack);
+  newConnection(userId, mediaTrack) {
+    this.getRTCPeer(userId).addTrack(mediaTrack);
   }
 
-  offer(uuid) {
+  offer(userId) {
     console.log("Making Offer");
     
-    this.getRTCPeer(uuid).createOffer()
-      .then(offer => this.getRTCPeer(uuid).setLocalDescription(offer))
+    this.getRTCPeer(userId).createOffer()
+      .then(offer => this.getRTCPeer(userId).setLocalDescription(offer))
       .then(() => {
-        this.channel.push("offer", {targetUuid: uuid, offer: this.rtcPeers[uuid].localDescription});
+        this.channel.push("offer", { userId, offer: this.rtcPeers[userId].localDescription});
       });
   }
 
@@ -75,7 +80,7 @@ class Connection {
       .then(answer => this.getRTCPeer(from).setLocalDescription(answer))
       .then(() => {
         console.log("Sending Answer");
-        this.channel.push("answer", {targetUuid: from, answer: this.getRTCPeer(from).localDescription})
+        this.channel.push("answer", { from, answer: this.getRTCPeer(from).localDescription})
       });
   }
 
@@ -85,17 +90,17 @@ class Connection {
     this.getRTCPeer(from).setRemoteDescription(remoteDesc);
   }
 
-  onIceCandidate(uuid, { candidate }) {
+  onIceCandidate(userId, { candidate }) {
     console.log("Handling ICE candidate");
     if (candidate) {
       console.log("Sending ICE candidate");
-      this.channel.push("ice-candidate", {targetUuid: uuid, candidate});
+      this.channel.push("ice-candidate", {userId, candidate});
     }
   }
 
   onTrack({target: rtcPeer, track}) {
     console.log("Handling Track");
-    this.onTrackCallbacks[rtcPeer.targetUuid](track);
+    this.onTrackCallbacks[rtcPeer.userId](track);
   }
 
   onTrackCallback(code, callback) {
@@ -107,7 +112,6 @@ class Connection {
     this.getRTCPeer(from).addIceCandidate(candidate);
   }
 }
-
-const conn = new Connection();
-
+const conn = new SocketConnection();
+window.conn = conn;
 export default conn;

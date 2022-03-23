@@ -2,7 +2,7 @@ defmodule AudioNodeWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  # channel "room:*", AudioNodeWeb.RoomChannel
+  channel "signal:*", AudioNodeWeb.SignalChannel
 
   # Socket params are passed from the client and can
   # be used to verify and authenticate a user. After
@@ -15,8 +15,8 @@ defmodule AudioNodeWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket, _connect_info) do
-    {:ok, socket}
+  def connect(%{ "userId" => user_id }, socket, _connect_info) do
+    {:ok, assign(socket, :user_id, user_id)}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

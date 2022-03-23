@@ -1,29 +1,52 @@
 import React, {useState} from 'react';
 import { Handle } from 'react-flow-renderer';
-import AudioNodeGraph from '../../AudioNodeGraph';
-import connection from '../../SocketConnection';
-import CopyToClipboard from '../utils/CopyToClipboard';
+import AudioNodeGraph from '../../core/AudioNodeGraph';
+import connection from '../../core/SocketConnection';
 
 const SenderFlowNode = ({ id }) => {
-  const [code, setCode] = useState("");
+  const [receiverUserId, setReceiverUserId] = useState();
+  const [waiting, setWaiting] = useState(false);
 
-  const onClick = () => {
-    connection.onKickoffCallback(code, () => {
-      connection.newConnection(code, AudioNodeGraph.get(id).stream.getTracks()[0]);
+  const onSubmit = (ev) => {
+    ev.preventDefault();
+    const { value: receiverUserId } = ev.target.elements.receiverUserId;
+    connection.onKickoffCallback(receiverUserId, () => {
+      setWaiting(false);
+      connection.newConnection(receiverUserId, AudioNodeGraph.get(id).stream.getTracks()[0]);
     });
-    connection.senderReady(code);
+    setReceiverUserId(receiverUserId);
+    connection.senderReady(receiverUserId, () => setWaiting(true));
   };
+
+  const inner = () => {
+    if (waiting) {
+      return (
+        <div>
+          <h4>Waiting for transmission...</h4>
+        </div>
+      )
+    } else if (receiverUserId) {
+      return (
+        <div>
+          <h4>Sending transmission to</h4>
+          <strong>{receiverUserId}</strong>
+        </div>
+      );
+    } else {
+      return (
+        <form onSubmit={onSubmit}>
+          <input id="receiverUserId" />
+          <button>Connect</button>
+        </form>
+      );
+    }
+  }
   return (
     <div key={id}>
       <Handle type="target" position="left" />
       <div className="label">Sender</div>
-      <div className="code">Your Code is 
-        <strong>{window.sessionUuid}</strong>
-        <CopyToClipboard copyValue={window.sessionUuid}/>
-      </div>
-      <div className="description">Enter their code and connect</div>
-      <input value={code} onChange={ev => setCode(ev.target.value)} />
-      <button type="button" disabled={code.length !== 6} onClick={onClick}>Connect</button>
+      <div className="description">Enter your friends user id and connect</div>
+      {inner()}
     </div>
   );
 }

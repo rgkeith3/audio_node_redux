@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Handle } from 'react-flow-renderer';
-import AudioNodeGraph from '../../AudioNodeGraph';
+import AudioNodeGraph from '../../core/AudioNodeGraph';
 import ParamSlider from '../utils/ParamSlider';
 
 const nodeStyle = {

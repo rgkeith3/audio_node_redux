@@ -1,7 +1,6 @@
 import React from 'react';
-import AudioNodeGraph from '../../AudioNodeGraph';
+import AudioNodeGraph from '../../core/AudioNodeGraph';
 import { reverseTransformValue, transformValue } from '../../utils/tranformValues';
-import * as Tone from 'tone';
 
 const ParamSlider = ({ id, name, min, max, sliderAction, state, setState }) => {
   const sliderMax = reverseTransformValue(sliderAction, max);

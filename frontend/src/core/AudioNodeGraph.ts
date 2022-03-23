@@ -1,9 +1,9 @@
 import { Connection, Edge } from "react-flow-renderer";
 import { AudioNodeFlowInterface, Param } from "./AudioNodeFlowInterface";
 import AudioNodeLibrary from "./AudioNodeLibrary";
-import { reverseTransformValue } from "./utils/tranformValues";
+import { reverseTransformValue } from "../utils/tranformValues";
 import * as Tone from 'tone';
-import { Param as ToneParam, Signal, ToneAudioNode } from "tone";
+import { BaseContext, Param as ToneParam, Signal, ToneAudioNode } from "tone";
 
 export class AudioNodeGraph {
   constructor() {
@@ -20,6 +20,10 @@ export class AudioNodeGraph {
     this.isValidConnection = this.isValidConnection.bind(this);
     this.remove = this.remove.bind(this);
     this.resume = this.resume.bind(this);
+  }
+
+  getContext() : BaseContext {
+    return Tone.getContext();
   }
 
   connect(connection: Connection | Edge) : void {
@@ -98,8 +102,9 @@ export class AudioNodeGraph {
     return this.nodes.delete(id);
   }
 
-  resume() : Promise<"closed" | "running" | "suspended">{
-    return Tone.start().then(() => this.state = Tone.getContext().state);
+  async resume() : Promise<"closed" | "running" | "suspended">{
+    await Tone.start();
+    return this.state = Tone.getContext().state;
   }
 
   loaded: boolean;

@@ -1,5 +1,5 @@
 import React from 'react';
-import AudioNodeGraph from '../../AudioNodeGraph';
+import AudioNodeGraph from '../../core/AudioNodeGraph';
 
 const ConstantSelect = ({ name, options, id }) => {
 

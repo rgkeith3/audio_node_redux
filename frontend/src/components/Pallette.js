@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import AudioNodeLibrary from './AudioNodeLibrary';
+import AudioNodeLibrary from '../core/AudioNodeLibrary';
 
 const onDragStart = (event, nodeType) => {
   event.dataTransfer.setData('application/reactflow', nodeType);
@@ -11,7 +11,7 @@ const Pallette = ({ toggleAudioCtxState, audioCtxState }) => {
 
   return (
     <aside id="pallette">
-      <button onClick={toggleAudioCtxState}>{audioCtxState == "running" ? "Stop" : "Start"}</button>
+      <button onClick={toggleAudioCtxState}>{audioCtxState === "running" ? "Stop" : "Start"}</button>
       <button onClick={() => setOpen(!open)}>{open ? "Close" : "Open"}</button>
       {open && <div className="drawer">
         <div className="description">You can drag these nodes to the pane on the right.</div>

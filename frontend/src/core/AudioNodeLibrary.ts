@@ -117,6 +117,20 @@ const AudioNodeLibrary:{ [index: string] : AudioNodeLibraryEntry } = {
       outputs: "audio"
     })
   },
+  send: {
+    func: () => Tone.getContext().createMediaStreamDestination(),
+    flowData: new AudioNodeFlowInterface({
+      label: "Sender",
+      inputs: "audio"
+    })
+  },
+  receive: {
+    func: () => new Tone.ToneBufferSource(),
+    flowData: new AudioNodeFlowInterface({
+      label: "Receiver",
+      outputs: "audio"
+    })
+  },
   output: {
     func: () => Tone.getDestination(),
     flowData: new AudioNodeFlowInterface({

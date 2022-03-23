@@ -50,6 +50,14 @@
   z-index: 100;
 }
 
+#connect {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: lightgrey;
+  z-index: 100;
+}
+
 .code svg {
   height: 20px;
   cursor: pointer;

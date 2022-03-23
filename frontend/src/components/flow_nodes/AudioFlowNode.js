@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Handle } from 'react-flow-renderer';
-import AudioNodeGraph from '../../AudioNodeGraph';
+import audioNodeGraph from '../../core/AudioNodeGraph';
 import ConstantSelect from '../utils/ConstantSelect';
 import ParamSlider from '../utils/ParamSlider';
 
@@ -12,7 +12,7 @@ const nodeStyle = {
 
 const AudioFlowNode = ({ id, data: { label, params, constants, outputs, inputs }}) => {
   // there's probably a better way to initiate state
-  const initialState = AudioNodeGraph.getNodesInitialState(id, params);
+  const initialState = audioNodeGraph.getNodesInitialState(id, params);
   const [state, setState] = useState(initialState);
 
   return(
@@ -24,7 +24,7 @@ const AudioFlowNode = ({ id, data: { label, params, constants, outputs, inputs }
           id={name} 
           position="top" 
           style={{ left: `${(idx + 0.5)/params.length * 100}%`}} 
-          isValidConnection={AudioNodeGraph.isValidConnection}
+          isValidConnection={audioNodeGraph.isValidConnection}
         />
         )}
       <div className="label">{label}</div>
