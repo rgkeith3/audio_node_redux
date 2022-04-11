@@ -5,6 +5,9 @@ class SocketConnection {
     this.rtcPeers = {};
     this.kickoffCallbacks = {};
     this.onTrackCallbacks = {};
+    document.addEventListener('beforeunload', (ev) => {
+      this.disconnect();
+    })
   }
   connect(userId, setUserId) {
     this.socket = new Socket("ws://localhost:4000/socket", {params: { userId }});
@@ -12,6 +15,7 @@ class SocketConnection {
     this.channel = this.socket.channel(`signal:${userId}`, {});
     this.channel.join()
       .receive("ok", resp => {
+        this.userId = userId;
         setUserId(userId);
         console.log("Joined Sucessfully", resp);
       })
@@ -21,6 +25,21 @@ class SocketConnection {
     this.channel.on("offer", this.onOfferSignal.bind(this));
     this.channel.on("answer", this.onAnswerSignal.bind(this));
     this.channel.on("ice-candidate", this.onIceCandidateSignal.bind(this));
+    this.channel.on("connected", this.onConnected.bind(this));
+  }
+
+  disconnect() {
+    this.channel.leave();
+    this.socket.disconnect();
+  }
+
+  setConnected(senderUserId) {
+    this.channel.push('connected', { senderUserId });
+  }
+
+  onConnected({ from }) {
+    // this is coming from signal server after we've connected
+    debugger;
   }
 
   onKickoffCallback(code, callback) {
@@ -100,7 +119,7 @@ class SocketConnection {
 
   onTrack({target: rtcPeer, track}) {
     console.log("Handling Track");
-    this.onTrackCallbacks[rtcPeer.userId](track);
+    this.onTrackCallbacks[rtcPeer.userId](track, rtcPeer.userId);
   }
 
   onTrackCallback(code, callback) {

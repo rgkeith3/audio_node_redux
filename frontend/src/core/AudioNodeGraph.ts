@@ -4,11 +4,13 @@ import AudioNodeLibrary from "./AudioNodeLibrary";
 import { reverseTransformValue } from "../utils/tranformValues";
 import * as Tone from 'tone';
 import { BaseContext, Param as ToneParam, Signal, ToneAudioNode } from "tone";
+import { Transport } from "tone/build/esm/core/clock/Transport";
 
 export class AudioNodeGraph {
   constructor() {
     this.nodes = new Map();
     this.state = Tone.getContext().state;
+    this.transport = Tone.Transport;
     this.loaded = false;
     
     this.connect = this.connect.bind(this);
@@ -109,6 +111,7 @@ export class AudioNodeGraph {
 
   loaded: boolean;
   state: string;
+  transport: Transport;
   nodes: Map<string, any>;
 }
 

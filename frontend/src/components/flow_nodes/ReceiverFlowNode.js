@@ -1,19 +1,15 @@
 import React, {useState} from 'react';
-import { Handle, useStoreState } from 'react-flow-renderer';
+import { Handle } from 'react-flow-renderer';
 import audioNodeGraph from '../../core/AudioNodeGraph';
 import connection from '../../core/SocketConnection';
 
 const ReceiverFlowNode = ({ id }) => {
   const [senderUserId, setSenderUserId] = useState();
   const [waiting, setWaiting] = useState(false);
-  const edges = useStoreState(store => store.edges);
 
-  const onTrack = (track) => {
-    const audioNode = audioNodeGraph.getContext().createMediaStreamSource(new MediaStream([track]));
-    audioNodeGraph.remove(id);
-    audioNodeGraph.set(id, audioNode);
-    // const edgesToConnect = edges.filter(({source}) => source === id);
-    // edgesToConnect.forEach(audioNodeGraph.connect);
+  const onTrack = (track, rtcPeerUserId) => {
+    audioNodeGraph.get(id).useStream(new MediaStream([track]));
+    connection.setConnected(rtcPeerUserId);
     setWaiting(false);
   }
 
@@ -21,7 +17,7 @@ const ReceiverFlowNode = ({ id }) => {
     ev.preventDefault();
     const { value: senderUserId } = ev.target.elements.senderUserId;
     setSenderUserId(senderUserId);
-    connection.onTrackCallback(senderUserId, onTrack.bind(this));
+    connection.onTrackCallback(senderUserId, onTrack);
     connection.receiverReady(senderUserId, () => setWaiting(true));
   };
 

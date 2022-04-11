@@ -1,0 +1,7 @@
+.node {
+  padding: 12px;
+  border-radius: 8px;
+  background: red;
+  display: flex;
+  flex-direction: column;
+}

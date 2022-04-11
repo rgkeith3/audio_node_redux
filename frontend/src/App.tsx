@@ -21,16 +21,9 @@ const getId = () => `${id++}`;
 
 function App() {
   const [elements, setElements] = useState<Elements>([]);
-  const [audioCtxState, setAudioCtxState] = useState(AudioNodeGraph.state);
   const [patchInstance, setPatchInstance] = useState<OnLoadParams>();
 
   const onLoad = (reactFlowInstance: OnLoadParams) => setPatchInstance(reactFlowInstance);
-  
-  const toggleAudioCtxState = () => {
-    if (audioCtxState !== "running") {
-      AudioNodeGraph.resume().then(state => setAudioCtxState(state));
-    }
-  }
 
   const onConnect = (connection: Connection | Edge) => {
     setElements((els) => addEdge({...connection, type: ConnectionLineType.SmoothStep}, els));
@@ -100,10 +93,7 @@ function App() {
           <Controls />
         </ReactFlow>
       </div>
-      <Pallette 
-        audioCtxState={audioCtxState}
-        toggleAudioCtxState={toggleAudioCtxState}
-      />
+      <Pallette />
       <Connect />
     </div>
   );

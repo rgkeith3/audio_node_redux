@@ -125,7 +125,7 @@ const AudioNodeLibrary:{ [index: string] : AudioNodeLibraryEntry } = {
     })
   },
   receive: {
-    func: () => new Tone.ToneBufferSource(),
+    func: () => new Tone.UserMedia(),
     flowData: new AudioNodeFlowInterface({
       label: "Receiver",
       outputs: "audio"
